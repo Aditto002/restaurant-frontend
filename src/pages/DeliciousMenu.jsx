@@ -1,0 +1,623 @@
+import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import MenuItem from "../components/MenuItem";
+import { useLanguage } from "../context/LanguageContext.jsx";
+import { translateFood } from "../utils/menuTranslations.js";
+
+// Category definitions with round illustrative food images
+const CATEGORIES = [
+  {
+    id: "STARTERS",
+    name: "STARTERS",
+    image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=150&auto=format&fit=crop&q=80"
+  },
+  {
+    id: "CHICKEN",
+    name: "CHICKEN",
+    image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=150&auto=format&fit=crop&q=80"
+  },
+  {
+    id: "LAMB & SEAFOOD",
+    name: "LAMB & SEAFOOD",
+    image: "https://images.unsplash.com/photo-1555244162-803834f70033?w=150&auto=format&fit=crop&q=80"
+  },
+  {
+    id: "VEGETARIAN",
+    name: "VEGETARIAN",
+    image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=150&auto=format&fit=crop&q=80"
+  },
+  {
+    id: "BIRYANI & RICE",
+    name: "BIRYANI & RICE",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=150&auto=format&fit=crop&q=80"
+  },
+  {
+    id: "FRESH & SIDES",
+    name: "FRESH & SIDES",
+    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=150&auto=format&fit=crop&q=80"
+  },
+  {
+    id: "DRINKS & DESSERTS",
+    name: "DRINKS & DESSERTS",
+    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=150&auto=format&fit=crop&q=80"
+  }
+];
+
+// Luxury menu items data list (27 items correctly categorized)
+const ALL_MENU_ITEMS = [
+  {
+    id: 1,
+    name: "Tandoori Lamb Chops",
+    description: "Succulent chops marinated in spices, yoghurt and garlic, roasted over hardwood charcoal.",
+    price: "$28.50",
+    image: "https://images.unsplash.com/photo-1544025162-811114215f79?w=400&auto=format&fit=crop&q=60",
+    badge: "SIGNATURE",
+    category: "LAMB & SEAFOOD"
+  },
+  {
+    id: 2,
+    name: "Butter Chicken Delhi Style",
+    description: "Tender chicken simmered in a velvety tomato, fresh butter, cream, and cashew nut sauce.",
+    price: "$22.00",
+    image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=400&auto=format&fit=crop&q=60",
+    badge: "MUST TRY",
+    category: "CHICKEN"
+  },
+  {
+    id: 3,
+    name: "Paneer Tikka Masala",
+    description: "Charred paneer cubes in a rich, spiced bell pepper and tomato cream sauce.",
+    price: "$19.50",
+    image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "VEGETARIAN"
+  },
+  {
+    id: 4,
+    name: "Awadhi Mutton Biryani",
+    description: "Fragrant basmati rice layered with spiced mutton, saffron, and mint, cooked under seal.",
+    price: "$24.00",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&auto=format&fit=crop&q=60",
+    badge: "NEW",
+    category: "BIRYANI & RICE"
+  },
+  {
+    id: 5,
+    name: "Garlic Naan Basket",
+    description: "Soft, leavened flatbread topped with minced garlic and butter, baked fresh in the clay oven.",
+    price: "$7.50",
+    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "FRESH & SIDES"
+  },
+  {
+    id: 6,
+    name: "Amritsari Fish Tikka",
+    description: "Spiced carom-flavored fish chunks, grilled over charcoal and served with mint chutney.",
+    price: "$21.00",
+    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "LAMB & SEAFOOD"
+  },
+  {
+    id: 7,
+    name: "Samosa Chaat Royal",
+    description: "Crushed potato samosas with chickpeas, sweetened yoghurt, tamarind, and mint chutney.",
+    price: "$11.00",
+    image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=400&auto=format&fit=crop&q=60",
+    badge: "SEASONAL",
+    category: "STARTERS"
+  },
+  {
+    id: 8,
+    name: "Dal Bukhara Classic",
+    description: "Black lentils slow-cooked overnight with tomatoes, butter, and cream for a smoky finish.",
+    price: "$16.50",
+    image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "VEGETARIAN"
+  },
+  {
+    id: 9,
+    name: "Royal Malai Kofta",
+    description: "Paneer and potato dumplings filled with raisins, served in a rich cardamom cashew gravy.",
+    price: "$18.00",
+    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "VEGETARIAN"
+  },
+  {
+    id: 10,
+    name: "Exotic Vegetable Korma",
+    description: "Seasonal handpicked garden vegetables simmered in a mildly spiced coconut cashew milk.",
+    price: "$17.00",
+    image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "VEGETARIAN"
+  },
+  {
+    id: 11,
+    name: "Goan Prawn Curry",
+    description: "Juicy prawns cooked in a traditional spiced coconut and red chili paste broth.",
+    price: "$26.00",
+    image: "https://images.unsplash.com/photo-1555244162-803834f70033?w=400&auto=format&fit=crop&q=60",
+    badge: "SIGNATURE",
+    category: "LAMB & SEAFOOD"
+  },
+  {
+    id: 12,
+    name: "Saffron Rasmalai",
+    description: "Poached paneer dumplings soaked in sweet saffron milk, garnished with almond flakes.",
+    price: "$9.00",
+    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "DRINKS & DESSERTS"
+  },
+  {
+    id: 13,
+    name: "Gulab Jamun Flambé",
+    description: "Warm milk dumplings soaked in cardamom rose syrup, served with vanilla bean gelato.",
+    price: "$9.50",
+    image: "https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "DRINKS & DESSERTS"
+  },
+  {
+    id: 14,
+    name: "Aromatic Saffron Rice",
+    description: "Long-grain basmati rice steamed with saffron, green peas, and whole warm spices.",
+    price: "$8.00",
+    image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "BIRYANI & RICE"
+  },
+  {
+    id: 15,
+    name: "Palak Patta Chaat",
+    description: "Crispy batter-fried spinach leaves topped with spiced potatoes, sweet chutneys, and sev.",
+    price: "$12.50",
+    image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&auto=format&fit=crop&q=60",
+    badge: "NEW",
+    category: "STARTERS"
+  },
+  {
+    id: 16,
+    name: "Chicken Seekh Kebab",
+    description: "Spiced minced chicken skewers grilled over hot coals, served with a tangy onion salad.",
+    price: "$19.00",
+    image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "CHICKEN"
+  },
+  {
+    id: 17,
+    name: "Mango Lassi Mousse",
+    description: "A velvety modern take on mango lassi, served chilled in a glass with crushed pistachios.",
+    price: "$10.00",
+    image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "DRINKS & DESSERTS"
+  },
+  {
+    id: 18,
+    name: "Goan Fish Curry",
+    description: "Premium kingfish cutlets simmered in a sharp, sour-and-spicy coconut tamarind gravy.",
+    price: "$25.00",
+    image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "LAMB & SEAFOOD"
+  },
+  {
+    id: 19,
+    name: "Imperial Keema Samosa",
+    description: "Crisp triangular pastry pockets filled with minced spiced lamb and fresh cilantro.",
+    price: "$14.00",
+    image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "STARTERS"
+  },
+  {
+    id: 20,
+    name: "Kesar Pistachio Kulfi",
+    description: "Traditional slow-reduced dense milk ice cream flavored with saffron threads and pistachios.",
+    price: "$8.50",
+    image: "https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "DRINKS & DESSERTS"
+  },
+  {
+    id: 21,
+    name: "Crispy Papadam Basket",
+    description: "Thin, crispy spiced lentil wafers served with sweet mango chutney and fresh mint dip.",
+    price: "$5.50",
+    image: "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "STARTERS"
+  },
+  {
+    id: 22,
+    name: "Tandoori Chicken Classic",
+    description: "Half chicken on-the-bone marinated in yoghurt and fresh tandoori spices, roasted in clay oven.",
+    price: "$18.90",
+    image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&auto=format&fit=crop&q=60",
+    badge: "POPULAR",
+    category: "CHICKEN"
+  },
+  {
+    id: 23,
+    name: "Kashmiri Lamb Rogan Josh",
+    description: "Tender lamb chunks slow-cooked in a rich, aromatic gravy flavored with Kashmiri red chilies.",
+    price: "$24.50",
+    image: "https://images.unsplash.com/photo-1544025162-811114215f79?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "LAMB & SEAFOOD"
+  },
+  {
+    id: 24,
+    name: "Bhindi Masala Sauté",
+    description: "Fresh tender lady fingers (okra) dry cooked with onions, tomatoes, and tangy spice blend.",
+    price: "$15.90",
+    image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "VEGETARIAN"
+  },
+  {
+    id: 25,
+    name: "Hyderabadi Dum Biryani",
+    description: "Aromatic basmati rice cooked on steam (dum) with saffron-marinated chicken, mint and fried onions.",
+    price: "$22.50",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&auto=format&fit=crop&q=60",
+    badge: "SIGNATURE",
+    category: "BIRYANI & RICE"
+  },
+  {
+    id: 26,
+    name: "Clay-Oven Butter Naan",
+    description: "Traditional soft and pillowy leavened flatbread brushed with premium quality melted butter.",
+    price: "$4.50",
+    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "FRESH & SIDES"
+  },
+  {
+    id: 27,
+    name: "Spiced Cucumber Raita",
+    description: "Cool whisked yoghurt with grated English cucumber, roasted cumin powder, and fresh mint.",
+    price: "$4.90",
+    image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&auto=format&fit=crop&q=60",
+    badge: null,
+    category: "FRESH & SIDES"
+  }
+];
+
+export default function DeliciousMenu({ cart, setCart }) {
+  const { t, language } = useLanguage();
+  const navigate = useNavigate();
+  const [activeCategory, setActiveCategory] = useState("STARTERS");
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const getTranslatedCategoryName = (catId) => {
+    switch (catId) {
+      case "STARTERS": return t("starters");
+      case "CHICKEN": return t("chicken");
+      case "LAMB & SEAFOOD": return t("lambSeafood");
+      case "VEGETARIAN": return t("vegetarian");
+      case "BIRYANI & RICE": return t("biryaniRice");
+      case "FRESH & SIDES": return t("freshSides");
+      case "DRINKS & DESSERTS": return t("drinksDesserts");
+      default: return catId;
+    }
+  };
+
+  // Dynamic filtering based on active selection
+  const filteredItems = useMemo(() => {
+    return ALL_MENU_ITEMS.filter((item) => item.category === activeCategory);
+  }, [activeCategory]);
+
+  // Add item to shopping cart drawer
+  const handleAddToCart = (item) => {
+    setCart((prevCart) => {
+      const existing = prevCart.find((cartItem) => cartItem.item.id === item.id);
+      if (existing) {
+        return prevCart.map((cartItem) =>
+          cartItem.item.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      }
+      return [...prevCart, { item, quantity: 1 }];
+    });
+    setIsCartOpen(true); // Automatically slide open cart drawer when item is clicked
+  };
+
+  const handleIncrement = (itemId) => {
+    setCart((prevCart) =>
+      prevCart.map((cartItem) =>
+        cartItem.item.id === itemId
+          ? { ...cartItem, quantity: cartItem.quantity + 1 }
+          : cartItem
+      )
+    );
+  };
+
+  const handleDecrement = (itemId) => {
+    setCart((prevCart) =>
+      prevCart
+        .map((cartItem) => {
+          if (cartItem.item.id === itemId) {
+            const newQty = cartItem.quantity - 1;
+            return newQty > 0 ? { ...cartItem, quantity: newQty } : null;
+          }
+          return cartItem;
+        })
+        .filter(Boolean)
+    );
+  };
+
+  const handleRemove = (itemId) => {
+    setCart((prevCart) =>
+      prevCart.filter((cartItem) => cartItem.item.id !== itemId)
+    );
+  };
+
+  const subtotal = useMemo(() => {
+    return cart.reduce((total, cartItem) => {
+      const priceNum = parseFloat(cartItem.item.price.replace(/[^0-9.]/g, "")) || 0;
+      return total + priceNum * cartItem.quantity;
+    }, 0);
+  }, [cart]);
+
+  return (
+    <section className="bg-[#111111] min-h-screen py-24 px-6 relative overflow-hidden flex flex-col items-center">
+      
+      {/* Optional: Subtle Background pattern simulation */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/food.png')] mix-blend-overlay"></div>
+
+      <div className="w-full max-w-6xl relative z-10 flex flex-col items-center">
+        
+        {/* Section Header */}
+        <div className="text-center mb-12">
+          <p className="text-[#c29b57] text-[10px] md:text-xs tracking-[0.3em] font-bold uppercase mb-4">
+            {language === "fr" ? "SÉLECTION SPÉCIALE" : "SPECIAL SELECTION"}
+          </p>
+          
+          {/* Decorative Divider */}
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="w-8 h-[1px] bg-[#c29b57]/40"></div>
+            <div className="w-1.5 h-1.5 rotate-45 border border-[#c29b57] bg-transparent"></div>
+            <div className="w-1.5 h-1.5 rotate-45 bg-[#c29b57]"></div>
+            <div className="w-1.5 h-1.5 rotate-45 border border-[#c29b57] bg-transparent"></div>
+            <div className="w-8 h-[1px] bg-[#c29b57]/40"></div>
+          </div>
+
+          <h2 className="text-4xl md:text-5xl font-serif text-white tracking-wide">
+            {t("menu")}
+          </h2>
+        </div>
+
+        {/* Categories Menu (Horizontal Scroll on Mobile, Centered on Desktop) */}
+        <div className="w-full flex flex-col items-center mb-16 relative z-10">
+          <div className="w-full overflow-x-auto scrollbar-none flex justify-start md:justify-center items-center gap-6 md:gap-10 pb-4 border-b border-white/10">
+            {CATEGORIES.map((cat) => {
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className="flex flex-col items-center gap-3 cursor-pointer group shrink-0 relative pb-3 select-none outline-none border-0 bg-transparent"
+                >
+                  {/* Circle image container */}
+                  <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full border-2 transition-all duration-300 overflow-hidden flex items-center justify-center bg-zinc-900 shadow-md ${
+                    isActive ? "border-[#c29b57] scale-105 shadow-[0_0_15px_rgba(194,155,87,0.3)]" : "border-transparent group-hover:border-white/40 group-hover:scale-105"
+                  }`}>
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="w-full h-full object-cover select-none pointer-events-none"
+                    />
+                  </div>
+                  
+                  {/* Category Label */}
+                  <span className={`text-[10px] md:text-xs tracking-[0.15em] font-sans font-bold transition-colors duration-300 ${
+                    isActive ? "text-[#c29b57]" : "text-gray-400 group-hover:text-white"
+                  }`}>
+                    {getTranslatedCategoryName(cat.id)}
+                  </span>
+
+                  {/* Red/Gold Underline Indicator */}
+                  {isActive && (
+                    <div className="absolute bottom-[-1px] left-1/2 -translate-x-1/2 h-[3px] bg-[#c29b57] w-12 rounded-full" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Menu Grid Container */}
+        <div className="w-full relative">
+          
+          {/* Center Vertical Divider (Hidden on mobile, visible on desktop) */}
+          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-[1px] bg-gray-800/80 -translate-x-1/2"></div>
+
+          {/* Grid Layout with smooth fade-in list */}
+          <div key={activeCategory} className="grid grid-cols-1 md:grid-cols-2 gap-x-16 lg:gap-x-24 gap-y-12 w-full max-w-5xl mx-auto animate-fade">
+            {filteredItems.map((item) => (
+              <MenuItem 
+                key={item.id} 
+                item={item} 
+                onAddToCart={handleAddToCart}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Section Footer */}
+        <div className="mt-20 flex flex-col items-center gap-6">
+          <p className="text-gray-300 text-sm font-light tracking-wide">
+            {language === "fr" ? (
+              <>En hiver tous les jours de <span className="text-[#c29b57] font-medium">19h00</span> à <span className="text-[#c29b57] font-medium">21h00</span></>
+            ) : (
+              <>During winter daily from <span className="text-[#c29b57] font-medium">7:00 pm</span> to <span className="text-[#c29b57] font-medium">9:00 pm</span></>
+            )}
+          </p>
+        </div>
+
+      </div>
+
+      {/* Floating Cart Trigger Badge */}
+      <button
+        onClick={() => setIsCartOpen(true)}
+        className="fixed bottom-6 right-6 z-40 bg-[#c29b57] text-zinc-950 p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer border border-[#c29b57]/20"
+        aria-label="Open Order Cart"
+      >
+        <div className="relative">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          {cart.length > 0 && (
+            <span className="absolute -top-2.5 -right-2.5 bg-[#8c2328] text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-[#111111]">
+              {cart.reduce((sum, item) => sum + item.quantity, 0)}
+            </span>
+          )}
+        </div>
+      </button>
+
+      {/* Slide-out Order Cart Drawer Panel */}
+      <AnimatePresence>
+        {isCartOpen && (
+          <>
+            {/* Dark Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCartOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 cursor-pointer"
+            />
+
+            {/* Sidebar Drawer Container */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
+              className="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-[#f4f1ea] text-[#1a1a1a] shadow-2xl z-50 flex flex-col justify-between font-sans border-l border-zinc-200"
+            >
+              {/* Drawer Header */}
+              <div className="p-6 border-b border-zinc-200 flex items-center justify-between">
+                <h2 className="text-xl font-serif font-bold tracking-wider uppercase text-zinc-900">
+                  {t("yourOrder")}
+                </h2>
+                <button 
+                  onClick={() => setIsCartOpen(false)}
+                  className="text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer outline-none border-0 bg-transparent p-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Cart Items List */}
+              <div className="flex-grow overflow-y-auto p-6 flex flex-col gap-6">
+                {cart.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-zinc-400 gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span className="text-sm font-medium tracking-wide">{t("emptyCart")}</span>
+                  </div>
+                ) : (
+                  cart.map(({ item, quantity }) => (
+                    <div key={item.id} className="flex gap-4 pb-6 border-b border-zinc-200/80 items-start">
+                      {/* Item Thumbnail */}
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-200 shrink-0 shadow-sm">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      </div>
+                      
+                      {/* Item Details */}
+                      <div className="flex-grow flex flex-col gap-2">
+                        <div className="flex justify-between items-start w-full">
+                          <h3 className="font-serif font-bold text-sm text-zinc-800 uppercase tracking-wide max-w-[70%] leading-tight">
+                            {translateFood(item.name, language)}
+                          </h3>
+                          <span className="font-serif font-bold text-sm text-zinc-950 whitespace-nowrap">
+                            ${(parseFloat(item.price.replace(/[^0-9.]/g, "")) * quantity).toFixed(2)}
+                          </span>
+                        </div>
+
+                        {/* Quantity controls & remove */}
+                        <div className="flex items-center gap-4 mt-1">
+                          {/* Quantity selector */}
+                          <div className="flex items-center bg-zinc-200/70 rounded-md border border-zinc-300/60 overflow-hidden">
+                            <button 
+                              onClick={() => handleDecrement(item.id)}
+                              className="px-2.5 py-1 text-zinc-700 hover:bg-zinc-300/80 transition-colors font-bold text-xs outline-none border-0 bg-transparent cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="px-3 text-xs font-bold text-zinc-950 select-none">
+                              {quantity}
+                            </span>
+                            <button 
+                              onClick={() => handleIncrement(item.id)}
+                              className="px-2.5 py-1 text-zinc-700 hover:bg-zinc-300/80 transition-colors font-bold text-xs outline-none border-0 bg-transparent cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          {/* Remove text button */}
+                          <button 
+                            onClick={() => handleRemove(item.id)}
+                            className="text-[10px] font-bold text-[#b91c1c] uppercase tracking-wider hover:text-red-700 transition-colors cursor-pointer outline-none border-0 bg-transparent flex items-center gap-1"
+                          >
+                            {language === "fr" ? "✕ Retirer" : "✕ Remove"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Subtotal & Action buttons */}
+              <div className="p-6 border-t border-zinc-200 bg-zinc-50/50 flex flex-col gap-4">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+                    {t("subtotal")}
+                  </span>
+                  <span className="text-2xl font-serif font-bold text-zinc-950">
+                    ${subtotal.toFixed(2)}
+                  </span>
+                </div>
+                
+                <p className="text-[10px] text-zinc-400 tracking-wider uppercase leading-relaxed">
+                  {language === "fr" ? "Taxes et livraison calculées à la caisse." : "Taxes and shipping calculated at checkout."}
+                </p>
+
+                <button 
+                  onClick={() => {
+                    setIsCartOpen(false);
+                    navigate("/checkout");
+                  }}
+                  disabled={cart.length === 0}
+                  className={`w-full py-4 text-xs font-bold uppercase tracking-widest rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all duration-300 select-none border-0 ${
+                    cart.length === 0 
+                      ? "bg-zinc-800 text-zinc-500 cursor-not-allowed shadow-none" 
+                      : "bg-[#c29b57] hover:bg-[#b58c49] text-zinc-950 font-bold cursor-pointer hover:shadow-xl active:scale-[0.99]"
+                  }`}
+                >
+                  {language === "fr" ? "PRO CÉDER AU PAIEMENT ➔" : "PROCEED TO CHECKOUT ➔"}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+    </section>
+  );
+}

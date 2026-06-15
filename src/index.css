@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #F59E0B; /* brandOrange */
+  --primary-hover: #D97706;
+  --secondary: #6D28D9; /* brandPurple */
+  --bg-dark: #0b0f19; /* premium deep dark background */
+  --bg-card: rgba(15, 23, 42, 0.45); /* slate-900 overlay */
+  --text-light: #f8fafc;
+  --text-dim: #94a3b8;
+}
+
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 transition-colors duration-300 antialiased;
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  body.dark {
+    @apply bg-slate-950 text-slate-100;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+  }
+}
+@keyframes marquee-infinite {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.carousel-track-css {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-infinite var(--marquee-duration, 40s) linear infinite;
+}
+
+.carousel-track-css.reverse {
+  animation-direction: reverse;
+}
+/* Custom style overrides for react-data-table-component */
+.rdt_Table {
+  @apply bg-transparent !important;
+}
+
+.rdt_TableHeadRow {
+  @apply bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-800/80 text-slate-500 dark:text-slate-400 font-semibold tracking-wider uppercase text-[10px] sm:text-xs !important;
+}
+
+.rdt_TableRow {
+  @apply bg-white dark:bg-slate-950 border-b border-slate-100/80 dark:border-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-900/40 text-slate-700 dark:text-slate-300 transition-colors duration-200 !important;
+}
+
+.rdt_Pagination {
+  @apply bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-t border-slate-100/80 dark:border-slate-900/60 !important;
+}
+
+/* Custom scrollbars for high fidelity visual feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-800 rounded-full hover:bg-slate-400 dark:hover:bg-slate-700;
+}
