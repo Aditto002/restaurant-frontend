@@ -3,8 +3,8 @@ import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaClock, FaFacebookF, FaInstagr
 
 export default function Footer({
   address = "7 Boulevard de la Liberation, 05000 Gap, France",
-  phone = "06 05 75 24 71",
-  email = "is05@hotmail.com",
+  phone = "+33 6 68 43 40 19",
+  email = "ic05gap@gamil.com",
   className = "",
 }) {
   const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;

@@ -503,16 +503,16 @@ export default function DeliciousMenu({ cart, setCart }) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
-              className="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-[#f4f1ea] text-[#1a1a1a] shadow-2xl z-50 flex flex-col justify-between font-sans border-l border-zinc-200"
+              className="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-zinc-950 text-slate-100 shadow-2xl z-50 flex flex-col justify-between font-sans border-l border-zinc-800"
             >
               {/* Drawer Header */}
-              <div className="p-6 border-b border-zinc-200 flex items-center justify-between">
-                <h2 className="text-xl font-serif font-bold tracking-wider uppercase text-zinc-900">
+              <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+                <h2 className="text-xl font-serif font-bold tracking-wider uppercase text-white">
                   {t("yourOrder")}
                 </h2>
                 <button 
                   onClick={() => setIsCartOpen(false)}
-                  className="text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer outline-none border-0 bg-transparent p-1"
+                  className="text-zinc-400 hover:text-white transition-colors cursor-pointer outline-none border-0 bg-transparent p-1"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -523,27 +523,27 @@ export default function DeliciousMenu({ cart, setCart }) {
               {/* Cart Items List */}
               <div className="flex-grow overflow-y-auto p-6 flex flex-col gap-6">
                 {cart.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-zinc-400 gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="flex flex-col items-center justify-center h-full text-zinc-500 gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     <span className="text-sm font-medium tracking-wide">{t("emptyCart")}</span>
                   </div>
                 ) : (
                   cart.map(({ item, quantity }) => (
-                    <div key={item.id} className="flex gap-4 pb-6 border-b border-zinc-200/80 items-start">
+                    <div key={item.id} className="flex gap-4 pb-6 border-b border-zinc-800/80 items-start">
                       {/* Item Thumbnail */}
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-200 shrink-0 shadow-sm">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-900 shrink-0 shadow-sm">
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       </div>
                       
                       {/* Item Details */}
                       <div className="flex-grow flex flex-col gap-2">
                         <div className="flex justify-between items-start w-full">
-                          <h3 className="font-serif font-bold text-sm text-zinc-800 uppercase tracking-wide max-w-[70%] leading-tight">
+                          <h3 className="font-serif font-bold text-sm text-zinc-100 uppercase tracking-wide max-w-[70%] leading-tight">
                             {translateFood(item.name, language)}
                           </h3>
-                          <span className="font-serif font-bold text-sm text-zinc-950 whitespace-nowrap">
+                          <span className="font-serif font-bold text-sm text-[#c29b57] whitespace-nowrap">
                             ${(parseFloat(item.price.replace(/[^0-9.]/g, "")) * quantity).toFixed(2)}
                           </span>
                         </div>
@@ -551,19 +551,19 @@ export default function DeliciousMenu({ cart, setCart }) {
                         {/* Quantity controls & remove */}
                         <div className="flex items-center gap-4 mt-1">
                           {/* Quantity selector */}
-                          <div className="flex items-center bg-zinc-200/70 rounded-md border border-zinc-300/60 overflow-hidden">
+                          <div className="flex items-center bg-zinc-900/70 rounded-md border border-zinc-700/60 overflow-hidden">
                             <button 
                               onClick={() => handleDecrement(item.id)}
-                              className="px-2.5 py-1 text-zinc-700 hover:bg-zinc-300/80 transition-colors font-bold text-xs outline-none border-0 bg-transparent cursor-pointer"
+                              className="px-2.5 py-1 text-zinc-300 hover:bg-zinc-800/80 transition-colors font-bold text-xs outline-none border-0 bg-transparent cursor-pointer"
                             >
                               -
                             </button>
-                            <span className="px-3 text-xs font-bold text-zinc-950 select-none">
+                            <span className="px-3 text-xs font-bold text-zinc-100 select-none">
                               {quantity}
                             </span>
                             <button 
                               onClick={() => handleIncrement(item.id)}
-                              className="px-2.5 py-1 text-zinc-700 hover:bg-zinc-300/80 transition-colors font-bold text-xs outline-none border-0 bg-transparent cursor-pointer"
+                              className="px-2.5 py-1 text-zinc-300 hover:bg-zinc-800/80 transition-colors font-bold text-xs outline-none border-0 bg-transparent cursor-pointer"
                             >
                               +
                             </button>
@@ -572,7 +572,7 @@ export default function DeliciousMenu({ cart, setCart }) {
                           {/* Remove text button */}
                           <button 
                             onClick={() => handleRemove(item.id)}
-                            className="text-[10px] font-bold text-[#b91c1c] uppercase tracking-wider hover:text-red-700 transition-colors cursor-pointer outline-none border-0 bg-transparent flex items-center gap-1"
+                            className="text-[10px] font-bold text-red-500 uppercase tracking-wider hover:text-red-400 transition-colors cursor-pointer outline-none border-0 bg-transparent flex items-center gap-1"
                           >
                             {language === "fr" ? "✕ Retirer" : "✕ Remove"}
                           </button>
@@ -584,17 +584,17 @@ export default function DeliciousMenu({ cart, setCart }) {
               </div>
 
               {/* Subtotal & Action buttons */}
-              <div className="p-6 border-t border-zinc-200 bg-zinc-50/50 flex flex-col gap-4">
+              <div className="p-6 border-t border-zinc-800 bg-[#0b0f19]/80 flex flex-col gap-4">
                 <div className="flex justify-between items-baseline">
-                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">
                     {t("subtotal")}
                   </span>
-                  <span className="text-2xl font-serif font-bold text-zinc-950">
+                  <span className="text-2xl font-serif font-bold text-white">
                     ${subtotal.toFixed(2)}
                   </span>
                 </div>
                 
-                <p className="text-[10px] text-zinc-400 tracking-wider uppercase leading-relaxed">
+                <p className="text-[10px] text-zinc-500 tracking-wider uppercase leading-relaxed">
                   {language === "fr" ? "Taxes et livraison calculées à la caisse." : "Taxes and shipping calculated at checkout."}
                 </p>
 

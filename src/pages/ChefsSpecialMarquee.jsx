@@ -7,7 +7,13 @@ import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function ChefsSpecialMarquee() {
   const { language } = useLanguage();
-  const duplicatedVideos = [...chefVideos, ...chefVideos];
+  // Duplicate videos enough times so that 50% of the track is wider than a 4K screen (3840px)
+  // 1 set = 4 videos * ~364px = ~1456px.
+  // 3 sets = ~4368px (wider than 4K). 
+  // We need 6 sets total so that exactly 50% of the track perfectly mirrors the other 50%.
+  const baseVideos = [...chefVideos, ...chefVideos, ...chefVideos];
+  const duplicatedVideos = [...baseVideos, ...baseVideos];
+
   const handleMenuClick = () => {
     console.log("Navigating to the regular menu...");
   };
@@ -27,36 +33,29 @@ export default function ChefsSpecialMarquee() {
         <p className="text-yellow-600 text-sm md:text-base tracking-[0.5em] font-sans uppercase font-semibold drop-shadow-md">
           Angelo Brewing
         </p>
-         {/* <CustomButton 
-        onClick={handleMenuClick}
-        className="absolute bottom-8 right-8 z-50 hover:scale-105"
-        aria-label="View Regular Menu"
-      >
-        Regular Menu
-      </CustomButton> */}
       </div>
 
       {/* ✅ Marquee wrapper — controls overflow, not the animation */}
       <div className="flex w-full overflow-hidden">
         {/*
-          ✅ Key fix: CSS animation instead of framer-motion
-          - will-change: transform  →  GPU layer promote করে, jank দূর করে
-          - translateX(-50%)        →  original array এর width সরে যায়, তারপর reset
+          ✅ Key fix: Mathematically perfect loop
+          - No gap or padding on the track container itself, to avoid miscalculating 50% width
+          - margin-right on each item instead of gap, so (width + margin) is consistent
         */}
         <div
-          className="flex gap-6 px-3"
+          className="flex"
           style={{
             width: "max-content",
-            animation: "marquee 50s linear infinite",
+            animation: "marquee-infinite 50s linear infinite",
             willChange: "transform",
           }}
         >
-            
           {duplicatedVideos.map((video, index) => (
-            <VideoCard
-              key={`${video.id}-${index}`}
-              videoSrc={video.src}
-            />
+            <div key={`${video.id}-${index}`} className="mr-6">
+              <VideoCard
+                videoSrc={video.src}
+              />
+            </div>
           ))}
         </div>
       </div>

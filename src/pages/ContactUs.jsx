@@ -191,10 +191,10 @@ export default function ContactUs() {
                 {language === "fr" ? "Téléphone :" : "Phone:"}
               </h4>
               <a 
-                href="tel:0605752471" 
+                href="tel:+33668434019" 
                 className="text-[#B39868] text-sm leading-relaxed hover:text-[#9a8053] transition-colors duration-300 font-light"
               >
-                06 05 75 24 71
+                +33 6 68 43 40 19
               </a>
             </motion.div>
 
@@ -210,10 +210,10 @@ export default function ContactUs() {
                 {language === "fr" ? "E-mail :" : "Email:"}
               </h4>
               <a 
-                href="mailto:is05@hotmail.com" 
+                href="mailto:ic05gap@gamil.com" 
                 className="text-[#B39868] text-sm leading-relaxed hover:text-[#9a8053] transition-colors duration-300 font-light break-all"
               >
-                is05@hotmail.com
+                ic05gap@gamil.com
               </a>
             </motion.div>
 

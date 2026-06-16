@@ -179,9 +179,9 @@ export default function Navbar() {
                         setLanguage("en");
                         setLangDropdownOpen(false);
                       }}
-                      className={`w-full text-center px-4 py-3.5 text-xs font-bold tracking-wider uppercase border-b border-white transition-colors duration-200 cursor-pointer block ${
+                      className={`w-full text-center px-4 py-3.5 text-xs font-bold tracking-wider uppercase border-b border-zinc-100 transition-colors duration-200 cursor-pointer block ${
                         language === "en"
-                          ? "bg-[#8c2328] text-white"
+                          ? "bg-[#c29b57] text-zinc-950"
                           : "bg-white text-slate-800 hover:bg-slate-50"
                       }`}
                     >
@@ -194,7 +194,7 @@ export default function Navbar() {
                       }}
                       className={`w-full text-center px-4 py-3.5 text-xs font-bold tracking-wider uppercase transition-colors duration-200 cursor-pointer block ${
                         language === "fr"
-                          ? "bg-[#8c2328] text-white"
+                          ? "bg-[#c29b57] text-zinc-950"
                           : "bg-white text-slate-800 hover:bg-slate-50"
                       }`}
                     >
@@ -263,7 +263,7 @@ export default function Navbar() {
                       onClick={() => setLanguage("en")}
                       className={`px-3 py-1 text-xs font-bold tracking-wider rounded border transition-colors duration-200 ${
                         language === "en"
-                          ? "bg-[#8c2328] text-white border-[#8c2328]"
+                          ? "bg-[#c29b57] text-zinc-950 border-[#c29b57]"
                           : isScrolled
                           ? "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
                           : "bg-transparent text-white border-white/20 hover:bg-white/10"
@@ -275,7 +275,7 @@ export default function Navbar() {
                       onClick={() => setLanguage("fr")}
                       className={`px-3 py-1 text-xs font-bold tracking-wider rounded border transition-colors duration-200 ${
                         language === "fr"
-                          ? "bg-[#8c2328] text-white border-[#8c2328]"
+                          ? "bg-[#c29b57] text-zinc-950 border-[#c29b57]"
                           : isScrolled
                           ? "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"
                           : "bg-transparent text-white border-white/20 hover:bg-white/10"
