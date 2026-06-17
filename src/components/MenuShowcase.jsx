@@ -201,15 +201,12 @@ const BottomFlourish = memo(() => (
 
 BottomFlourish.displayName = "BottomFlourish";
 
-// Independent countdown component to avoid parent component re-renders
-const Countdown = memo(({ isCenter, duration }) => {
+// Static Hours Card to display current active menu timings
+const HoursCard = memo(({ activeDay }) => {
+  const { language } = useLanguage();
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
-    if (!isCenter) {
-      return;
-    }
-
     const updateTime = () => {
       try {
         const endTimeStr = localStorage.getItem("daily_menu_timer_end");
@@ -222,54 +219,84 @@ const Countdown = memo(({ isCenter, duration }) => {
         console.error(e);
       }
     };
-
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
-  }, [isCenter]);
+  }, [activeDay]);
+
+  const currentDayData = daysMenuData.find(d => d.day === activeDay);
+  const timeDetails = currentDayData?.timeDetails;
 
   return (
-    <div className={`mb-3.5 px-4 py-1.5 bg-black/80 backdrop-blur-sm border border-yellow-600/35 rounded-full text-xs font-mono text-yellow-500 tracking-wider flex items-center gap-2 shadow-xl transition-all duration-300 shrink-0 ${
-      isCenter ? "opacity-100 scale-100" : "opacity-50 scale-90"
-    }`}>
-      <span className={`w-2 h-2 rounded-full ${isCenter ? "bg-green-500 animate-pulse" : "bg-zinc-600"}`} />
-      <span>{isCenter ? formatTime(seconds) : formatTime(duration)}</span>
+    <div className="absolute -top-32 md:-top-40 mt-5 z-[60] flex flex-col items-center bg-white/5 backdrop-blur-2xl border border-white/15 rounded-2xl p-5 md:p-6 shadow-[0_15px_40px_rgba(0,0,0,0.4)] w-56 md:w-64 pointer-events-none">
+      {/* Decorative Top */}
+      <div className="flex items-center gap-3 mb-5 w-full justify-center text-zinc-100">
+        <span className="w-10 h-[1px] bg-[#c29b57]/40 relative">
+          <div className="absolute -left-1.5 -top-[3px] w-2 h-2 border border-[#c29b57]/60 rotate-45 rounded-sm"></div>
+        </span>
+        <span className="font-serif tracking-[0.15em] text-sm md:text-base text-zinc-100 font-light">HOURS</span>
+        <span className="w-10 h-[1px] bg-[#c29b57]/40 relative">
+          <div className="absolute -right-1.5 -top-[3px] w-2 h-2 border border-[#c29b57]/60 rotate-45 rounded-sm"></div>
+        </span>
+      </div>
+
+      {timeDetails && (
+        <div className="w-full flex flex-col items-center font-sans">
+          <span className="text-xs md:text-sm font-light tracking-wide text-zinc-100 mb-2">{timeDetails.topTitle}</span>
+          
+          <div className="w-full h-[1px] bg-white/10 mb-3"></div>
+          
+          <div className="w-full flex flex-col gap-1.5 mb-4">
+            {timeDetails.topSchedules.map((schedule, idx) => (
+              <div key={idx} className="flex justify-center w-full text-[11px] md:text-xs text-zinc-200">
+                {schedule.label && <span className="font-semibold mr-2">{schedule.label}</span>}
+                <span className="font-light">{schedule.time}</span>
+              </div>
+            ))}
+          </div>
+          
+          <span className="text-xs md:text-sm font-light tracking-wide text-zinc-100 mb-2">{timeDetails.bottomTitle}</span>
+          
+          <div className="w-full h-[1px] bg-white/10 mb-3"></div>
+          
+          <div className="w-full flex flex-col gap-1.5 mb-1">
+            {timeDetails.bottomSchedules.map((schedule, idx) => (
+              <div key={idx} className="flex justify-center w-full text-[11px] md:text-xs text-zinc-200">
+                {schedule.label && <span className="font-semibold mr-2">{schedule.label}</span>}
+                <span className="font-light">{schedule.time}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 });
 
-Countdown.displayName = "Countdown";
+HoursCard.displayName = "HoursCard";
 
-// Memoized DailyMenuCard to ensure animations are optimized and component is not needlessly re-rendered.
-const DailyMenuCard = memo(({ day, diff, onClick, windowWidth }) => {
-  const { t, language } = useLanguage();
+// Memoized DailyMenuCard — redesigned as a premium featured dish hero card
+const DailyMenuCard = memo(({ day, diff, onClick, windowWidth, onAddToCheckout }) => {
+  const { language } = useLanguage();
+  const [hovered, setHovered] = useState(false);
   const isCenter = diff === 0;
   const isMobile = windowWidth < 640;
-  const isTablet = windowWidth >= 640 && windowWidth < 768;
 
-  const getTranslatedDay = (dayName) => {
-    switch(dayName) {
-      case "Saturday menu": return language === 'fr' ? "Menu du Samedi" : "Saturday menu";
-      case "Sunday menu": return language === 'fr' ? "Menu du Dimanche" : "Sunday menu";
-      case "Monday menu": return language === 'fr' ? "Menu du Lundi" : "Monday menu";
-      case "Tuesday menu": return language === 'fr' ? "Menu du Mardi" : "Tuesday menu";
-      case "Wednesday menu": return language === 'fr' ? "Menu du Mercredi" : "Wednesday menu";
-      case "Thursday menu": return language === 'fr' ? "Menu du Jeudi" : "Thursday menu";
-      case "Friday menu": return language === 'fr' ? "Menu du Vendredi" : "Friday menu";
-      default: return dayName;
-    }
-  };
-
-  // Responsive dimensions to ensure the specialties fit without vertical compression
+  // Responsive dimensions
   const getDimensions = () => {
-    if (windowWidth < 640) return { w: 190, h: 280 };
-    if (windowWidth < 768) return { w: 230, h: 335 };
-    return { w: 290, h: 420 };
+    if (windowWidth < 640) return { w: 230, h: 340 };
+    if (windowWidth < 768) return { w: 270, h: 390 };
+    return { w: 330, h: 470 };
   };
   const { w, h } = getDimensions();
 
-  const handleClick = () => {
-    onClick(day.day);
+  const imgH = Math.round(h * 0.48);
+
+  const handleClick = () => onClick(day.day);
+
+  const handleAdd = (e) => {
+    e.stopPropagation();
+    if (onAddToCheckout) onAddToCheckout(day);
   };
 
   return (
@@ -278,52 +305,66 @@ const DailyMenuCard = memo(({ day, diff, onClick, windowWidth }) => {
       variants={cardVariants}
       animate="animate"
       onClick={handleClick}
-      className="absolute cursor-pointer rounded-2xl overflow-visible flex flex-col items-center select-none will-change-transform"
-      style={{ width: w, height: h, willChange: "transform, opacity" }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      className="absolute cursor-pointer select-none will-change-transform"
+      style={{ width: w, willChange: "transform, opacity" }}
     >
-      {/* Countdown Timer Badge */}
-      <Countdown isCenter={isCenter} duration={day.duration} />
+      {/* Card shell */}
+      <div className="relative rounded-2xl overflow-hidden bg-[#111111] border border-white/8 shadow-[0_25px_60px_rgba(0,0,0,0.9)] flex flex-col">
 
-      {/* Card Body Container */}
-      <div className="relative flex-1 w-full rounded-xl p-5 md:p-8 border border-yellow-600/50 bg-[#080808] shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-center items-center overflow-hidden">
-        
-        {/* Inner Gold Frame Border */}
-        <div className="absolute inset-1.5 border border-yellow-600/20 rounded-lg pointer-events-none" />
-
-        {/* Inner Gold Corner Ornaments */}
-        <CornerOrnament className={`top-2 left-2 ${isMobile ? "w-3.5 h-3.5" : "w-5 h-5"}`} />
-        <CornerOrnament className={`top-2 right-2 rotate-90 ${isMobile ? "w-3.5 h-3.5" : "w-5 h-5"}`} />
-        <CornerOrnament className={`bottom-2 left-2 -rotate-90 ${isMobile ? "w-3.5 h-3.5" : "w-5 h-5"}`} />
-        <CornerOrnament className={`bottom-2 right-2 rotate-180 ${isMobile ? "w-3.5 h-3.5" : "w-5 h-5"}`} />
-
-        {/* Top Flourish */}
-        <div className="shrink-0 w-full">
-          <GoldFlourish />
+        {/* ── Image zone ── */}
+        <div
+          className="relative w-full overflow-hidden flex-shrink-0"
+          style={{ height: imgH }}
+        >
+          {/* Dark gradient overlay so image blends into card */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#111111] z-10 pointer-events-none" />
+          <img
+            src={day.featuredImage}
+            alt={day.featuredTitle}
+            className="w-full h-full object-cover scale-105"
+            loading="lazy"
+          />
+          {/* Day label badge */}
+          <span className={`absolute top-2.5 left-2.5 z-20 bg-[#c29b57]/90 text-[#111] font-bold rounded-full px-2 py-0.5 uppercase tracking-wider leading-none ${isMobile ? "text-[8px]" : "text-[9px]"}`}>
+            {day.day.replace(" menu", "")}
+          </span>
         </div>
 
-        {/* Day Header */}
-        <h3 className={`shrink-0 font-serif font-bold text-[#d4af37] tracking-[0.2em] uppercase text-center mt-2.5 mb-2.5 md:mb-4 ${
-          isMobile ? "text-base" : isTablet ? "text-xl" : "text-2xl"
-        }`}>
-          {getTranslatedDay(day.day)}
-        </h3>
+        {/* ── Text zone ── */}
+        <div className="flex flex-col px-3.5 pb-3.5 pt-2 gap-1">
+          {/* Title */}
+          <h3 className={`font-bold text-white leading-tight ${isMobile ? "text-sm" : "text-base"}`}>
+            {day.featuredTitle}
+          </h3>
 
-        {/* Specialties List */}
-        <ul className={`flex flex-col w-full max-w-[85%] md:max-w-[80%] shrink-0 ${isMobile ? "gap-2" : "gap-3"}`}>
-          {day.specialties.map((item, idx) => (
-            <li key={idx} className="flex items-center gap-2.5 text-left">
-              <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-yellow-500/90 shadow-[0_0_8px_rgba(234,179,8,0.6)] shrink-0" />
-              <span className={`font-sans font-semibold text-zinc-100 uppercase tracking-wider truncate
-                ${isMobile ? "text-[9px]" : "text-xs md:text-sm"}`}>
-                {translateFood(item, language)}
+          {/* Description */}
+          <p className={`text-zinc-400 leading-snug ${isMobile ? "text-[9px]" : "text-[11px]"}`} style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+            {day.featuredDesc}
+          </p>
+
+          {/* Price row + Add button */}
+          <div className="flex items-center justify-between mt-1.5">
+            <span className={`font-bold text-white ${isMobile ? "text-base" : "text-lg"}`}>
+              {day.price}
+            </span>
+
+            {/* Add-to-checkout button */}
+            <motion.button
+              onClick={handleAdd}
+              whileTap={{ scale: 0.9 }}
+              animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1 : 0.8 }}
+              transition={{ duration: 0.2 }}
+              aria-label="Add to checkout"
+              className={`relative w-8 h-8 rounded-lg border border-[#c29b57]/50 bg-[#1a1a1a] flex items-center justify-center overflow-hidden ${hovered ? "pointer-events-auto" : "pointer-events-none"}`}
+            >
+              {/* Plus icon (shows on hover) */}
+              <span className="absolute text-[#c29b57] font-bold text-xl leading-none">
+                +
               </span>
-            </li>
-          ))}
-        </ul>
-
-        {/* Bottom Flourish */}
-        <div className="shrink-0 w-full mt-2.5">
-          <BottomFlourish />
+            </motion.button>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -385,7 +426,7 @@ const getInitialTimerAndDay = () => {
   }
 };
 
-export default function MenuShowcase() {
+export default function MenuShowcase({ cart, setCart, setIsCartOpen }) {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [activeDay, setActiveDay] = useState(() => {
@@ -396,18 +437,10 @@ export default function MenuShowcase() {
   // Responsive screen width listener for smooth vector transitions
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
 
-  // State to hold dynamically loaded companion menus data
-  const [companionMenus, setCompanionMenus] = useState([]);
-
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Load companion menus from static import
-  useEffect(() => {
-    setCompanionMenus(COMPANION_MENUS || []);
   }, []);
 
   const activeIndex = DAYS_ORDER.indexOf(activeDay);
@@ -466,6 +499,32 @@ export default function MenuShowcase() {
     }
   }, []);
 
+  const handleAddToCart = useCallback((item) => {
+    if (!setCart) return;
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((cartItem) => cartItem.item.id === item.id);
+      if (existingItem) {
+        return prevCart.map((cartItem) =>
+          cartItem.item.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      }
+      return [...prevCart, { item, quantity: 1 }];
+    });
+    if (setIsCartOpen) setIsCartOpen(true);
+  }, [setCart, setIsCartOpen]);
+
+  // Add the active card to checkout
+  const handleAddToCheckout = useCallback((day) => {
+    handleAddToCart({
+      id: day.day,
+      name: day.featuredTitle,
+      price: day.price,
+      image: day.featuredImage
+    });
+  }, [handleAddToCart]);
+
   const getTranslatedCompanionTitle = (title) => {
     if (title === "Drinks Menu" || title === "Drinks") return language === 'fr' ? "Carte des Boissons" : "Drinks Menu";
     if (title === "Appetizers Menu" || title === "Appetizers") return language === 'fr' ? "Carte des Entrées" : "Appetizers Menu";
@@ -490,54 +549,56 @@ export default function MenuShowcase() {
         </p>
       </div>   
        {/* Companion Cards Section: Drinks & Appetizers */}
-      <div className="relative z-10 w-full max-w-5xl px-4 border-t border-zinc-900/60 mb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto mt-16">
-          {companionMenus.map((menu) => (
+      <div className="relative z-10 w-full max-w-6xl px-4 border-t border-zinc-900/60 mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 w-full mx-auto mt-16">
+          {COMPANION_MENUS.map((menu) => (
             <div
               key={menu.title}
-              className="group relative rounded-2xl p-6 md:p-8 border border-yellow-600/30 bg-[#080808] shadow-2xl flex flex-col justify-center items-center overflow-hidden transition-all duration-500 hover:border-yellow-600/60 hover:scale-[1.01] hover:shadow-[0_15px_40px_rgba(234,179,8,0.1)]"
+              className="group relative rounded-[2.5rem] p-4 pr-6 border-[0.5px] border-white/20 bg-white/5 backdrop-blur-md shadow-2xl flex flex-row items-center overflow-visible transition-all duration-500 hover:border-white/40 hover:bg-white/10"
             >
-              {/* Inner Gold Frame Border */}
-              <div className="absolute inset-2 border border-yellow-600/20 rounded-lg pointer-events-none" />
-
-              {/* Inner Gold Corner Ornaments */}
-              <CornerOrnament className="top-2.5 left-2.5 w-4 h-4" />
-              <CornerOrnament className="top-2.5 right-2.5 rotate-90 w-4 h-4" />
-              <CornerOrnament className="bottom-2.5 left-2.5 -rotate-90 w-4 h-4" />
-              <CornerOrnament className="bottom-2.5 right-2.5 rotate-180 w-4 h-4" />
-
-              {/* Top Flourish */}
-              <div className="shrink-0 w-full mb-1">
-                <GoldFlourish />
+              {/* Left Side: Overlapping Image */}
+              <div className="w-32 h-32 md:w-44 md:h-44 shrink-0 relative -ml-6 md:-ml-10 z-10 drop-shadow-2xl">
+                {/* Circular image mimicking a floating plate of food */}
+                <img src={menu.image} alt={menu.title} className="w-full h-full object-cover rounded-full border-2 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
               </div>
 
-              {/* Main Centered Title */}
-              <h3 className="shrink-0 font-serif font-bold text-[#d4af37] tracking-[0.2em] uppercase text-center text-lg md:text-xl my-2 z-10">
-                {getTranslatedCompanionTitle(menu.title)}
-              </h3>
-
-              {/* Menu Items Grid (2 Columns) */}
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 w-full max-w-[90%] z-10 my-2">
-                {menu.items.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-left">
-                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500/90 shadow-[0_0_8px_rgba(234,179,8,0.6)] shrink-0" />
-                    <span className="font-sans font-semibold text-zinc-100 uppercase tracking-wider text-[9px] md:text-xs truncate">
-                      {translateFood(item, language)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Bottom Flourish */}
-              <div className="shrink-0 w-full mt-1">
-                <BottomFlourish />
+              {/* Right Side: Content */}
+              <div className="flex flex-col flex-1 pl-4 md:pl-6 py-2 text-left">
+                <h3 className="font-sans font-bold text-white text-lg md:text-2xl mb-1.5 tracking-wide">
+                  {getTranslatedCompanionTitle(menu.title)}
+                </h3>
+                <p className="text-zinc-300 text-[10px] md:text-xs leading-relaxed mb-4 max-w-[95%]">
+                  {menu.description}
+                </p>
+                <div className="text-white font-bold text-lg md:text-xl mb-4 tracking-wider">
+                  {menu.price}
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex items-center mt-auto">
+                  <button 
+                    onClick={() => handleAddToCart({
+                      id: menu.title,
+                      name: getTranslatedCompanionTitle(menu.title),
+                      price: menu.price,
+                      image: menu.image
+                    })}
+                    className="bg-gradient-to-r from-[#c29b57] to-[#d4af37] hover:from-[#d4af37] hover:to-[#e5c158] text-[#111111] text-xs md:text-sm font-bold py-2 md:py-2.5 px-6 md:px-8 rounded-xl shadow-[0_4px_15px_rgba(194,155,87,0.3)] hover:shadow-[0_6px_20px_rgba(194,155,87,0.5)] transition-all duration-300 uppercase tracking-wider"
+                  >
+                    Order Now
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
       {/* 3D Stack Carousel Container with "V" Layout */}
-      <div className="relative w-full max-w-5xl h-[380px] sm:h-[450px] md:h-[520px] flex items-center justify-center overflow-visible mt-4 z-10 px-4">
+      <div className="relative w-full max-w-6xl h-[460px] sm:h-[560px] md:h-[640px] flex items-center justify-center overflow-visible mt-20 z-10 px-4">
+        
+        {/* Fixed Hours Info Card attached to the active center card */}
+        <HoursCard activeDay={activeDay} />
+
         {daysMenuData.map((day, idx) => {
           const diff = getCircularOffset(idx, activeIndex, daysMenuData.length);
           return (
@@ -547,6 +608,7 @@ export default function MenuShowcase() {
               diff={diff}
               onClick={handleCardClick}
               windowWidth={windowWidth}
+              onAddToCheckout={handleAddToCheckout}
             />
           );
         })}

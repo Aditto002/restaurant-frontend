@@ -11,23 +11,25 @@ import HeroSection from "./pages/HeroSection";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import CheckoutPage from "./pages/CheckoutPage";
+import OrderFormPage from "./pages/OrderFormPage";
 import Footer from "./components/Footer";
 
 function App() {
   const location = useLocation();
-  const showFooter = location.pathname !== "/contact" && location.pathname !== "/checkout";
+  const showFooter = location.pathname !== "/contact" && location.pathname !== "/checkout" && location.pathname !== "/order";
   const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   return (
     <main className="w-full overflow-x-hidden">
-      <Navbar />
+      <Navbar cart={cart} setCart={setCart} isCartOpen={isCartOpen} setIsCartOpen={setIsCartOpen} />
       <Routes>
         <Route
           path="/"
           element={
             <>
               <HomeView />
-              <MenuShowcase />
+              <MenuShowcase cart={cart} setCart={setCart} setIsCartOpen={setIsCartOpen} />
               <HeroSection />
               <ChefsSpecialMarquee />
               {/* <ContactPage/> */}
@@ -38,7 +40,7 @@ function App() {
           path="/menu"
           element={
             <>
-              <DeliciousMenu cart={cart} setCart={setCart} />
+              <DeliciousMenu cart={cart} setCart={setCart} setIsCartOpen={setIsCartOpen} />
             </>
           }
         />
@@ -55,6 +57,14 @@ function App() {
           element={
             <>
               <AboutUs />
+            </>
+          }
+        />
+        <Route
+          path="/order"
+          element={
+            <>
+              <OrderFormPage />
             </>
           }
         />

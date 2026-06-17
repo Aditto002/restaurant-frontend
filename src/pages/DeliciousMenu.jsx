@@ -291,11 +291,10 @@ const ALL_MENU_ITEMS = [
   }
 ];
 
-export default function DeliciousMenu({ cart, setCart }) {
+export default function DeliciousMenu({ cart, setCart, setIsCartOpen }) {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("STARTERS");
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const getTranslatedCategoryName = (catId) => {
     switch (catId) {
@@ -331,43 +330,6 @@ export default function DeliciousMenu({ cart, setCart }) {
     setIsCartOpen(true); // Automatically slide open cart drawer when item is clicked
   };
 
-  const handleIncrement = (itemId) => {
-    setCart((prevCart) =>
-      prevCart.map((cartItem) =>
-        cartItem.item.id === itemId
-          ? { ...cartItem, quantity: cartItem.quantity + 1 }
-          : cartItem
-      )
-    );
-  };
-
-  const handleDecrement = (itemId) => {
-    setCart((prevCart) =>
-      prevCart
-        .map((cartItem) => {
-          if (cartItem.item.id === itemId) {
-            const newQty = cartItem.quantity - 1;
-            return newQty > 0 ? { ...cartItem, quantity: newQty } : null;
-          }
-          return cartItem;
-        })
-        .filter(Boolean)
-    );
-  };
-
-  const handleRemove = (itemId) => {
-    setCart((prevCart) =>
-      prevCart.filter((cartItem) => cartItem.item.id !== itemId)
-    );
-  };
-
-  const subtotal = useMemo(() => {
-    return cart.reduce((total, cartItem) => {
-      const priceNum = parseFloat(cartItem.item.price.replace(/[^0-9.]/g, "")) || 0;
-      return total + priceNum * cartItem.quantity;
-    }, 0);
-  }, [cart]);
-
   return (
     <section className="bg-[#111111] min-h-screen py-24 px-6 relative overflow-hidden flex flex-col items-center">
       
@@ -391,6 +353,13 @@ export default function DeliciousMenu({ cart, setCart }) {
             <div className="w-8 h-[1px] bg-[#c29b57]/40"></div>
           </div>
 
+          <div className="flex justify-center mb-1">
+            <img 
+              src="/halal.png" 
+              alt="Halal Certified" 
+              className="h-20 md:h-28 w-auto object-contain drop-shadow-[0_4px_10px_rgba(212,175,55,0.3)]"
+            />
+          </div>
           <h2 className="text-4xl md:text-5xl font-serif text-white tracking-wide">
             {t("menu")}
           </h2>
@@ -473,151 +442,16 @@ export default function DeliciousMenu({ cart, setCart }) {
         aria-label="Open Order Cart"
       >
         <div className="relative">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M2 17h20M12 3a9 9 0 00-9 9v3h18v-3a9 9 0 00-9-9zM10 3V1h4v2" />
           </svg>
-          {cart.length > 0 && (
+          {cart && cart.length > 0 && (
             <span className="absolute -top-2.5 -right-2.5 bg-[#8c2328] text-white text-[9px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-[#111111]">
               {cart.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
           )}
         </div>
       </button>
-
-      {/* Slide-out Order Cart Drawer Panel */}
-      <AnimatePresence>
-        {isCartOpen && (
-          <>
-            {/* Dark Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsCartOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 cursor-pointer"
-            />
-
-            {/* Sidebar Drawer Container */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
-              className="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-zinc-950 text-slate-100 shadow-2xl z-50 flex flex-col justify-between font-sans border-l border-zinc-800"
-            >
-              {/* Drawer Header */}
-              <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
-                <h2 className="text-xl font-serif font-bold tracking-wider uppercase text-white">
-                  {t("yourOrder")}
-                </h2>
-                <button 
-                  onClick={() => setIsCartOpen(false)}
-                  className="text-zinc-400 hover:text-white transition-colors cursor-pointer outline-none border-0 bg-transparent p-1"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Cart Items List */}
-              <div className="flex-grow overflow-y-auto p-6 flex flex-col gap-6">
-                {cart.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-zinc-500 gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    <span className="text-sm font-medium tracking-wide">{t("emptyCart")}</span>
-                  </div>
-                ) : (
-                  cart.map(({ item, quantity }) => (
-                    <div key={item.id} className="flex gap-4 pb-6 border-b border-zinc-800/80 items-start">
-                      {/* Item Thumbnail */}
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-zinc-900 shrink-0 shadow-sm">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      </div>
-                      
-                      {/* Item Details */}
-                      <div className="flex-grow flex flex-col gap-2">
-                        <div className="flex justify-between items-start w-full">
-                          <h3 className="font-serif font-bold text-sm text-zinc-100 uppercase tracking-wide max-w-[70%] leading-tight">
-                            {translateFood(item.name, language)}
-                          </h3>
-                          <span className="font-serif font-bold text-sm text-[#c29b57] whitespace-nowrap">
-                            ${(parseFloat(item.price.replace(/[^0-9.]/g, "")) * quantity).toFixed(2)}
-                          </span>
-                        </div>
-
-                        {/* Quantity controls & remove */}
-                        <div className="flex items-center gap-4 mt-1">
-                          {/* Quantity selector */}
-                          <div className="flex items-center bg-zinc-900/70 rounded-md border border-zinc-700/60 overflow-hidden">
-                            <button 
-                              onClick={() => handleDecrement(item.id)}
-                              className="px-2.5 py-1 text-zinc-300 hover:bg-zinc-800/80 transition-colors font-bold text-xs outline-none border-0 bg-transparent cursor-pointer"
-                            >
-                              -
-                            </button>
-                            <span className="px-3 text-xs font-bold text-zinc-100 select-none">
-                              {quantity}
-                            </span>
-                            <button 
-                              onClick={() => handleIncrement(item.id)}
-                              className="px-2.5 py-1 text-zinc-300 hover:bg-zinc-800/80 transition-colors font-bold text-xs outline-none border-0 bg-transparent cursor-pointer"
-                            >
-                              +
-                            </button>
-                          </div>
-
-                          {/* Remove text button */}
-                          <button 
-                            onClick={() => handleRemove(item.id)}
-                            className="text-[10px] font-bold text-red-500 uppercase tracking-wider hover:text-red-400 transition-colors cursor-pointer outline-none border-0 bg-transparent flex items-center gap-1"
-                          >
-                            {language === "fr" ? "✕ Retirer" : "✕ Remove"}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Subtotal & Action buttons */}
-              <div className="p-6 border-t border-zinc-800 bg-[#0b0f19]/80 flex flex-col gap-4">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                    {t("subtotal")}
-                  </span>
-                  <span className="text-2xl font-serif font-bold text-white">
-                    ${subtotal.toFixed(2)}
-                  </span>
-                </div>
-                
-                <p className="text-[10px] text-zinc-500 tracking-wider uppercase leading-relaxed">
-                  {language === "fr" ? "Taxes et livraison calculées à la caisse." : "Taxes and shipping calculated at checkout."}
-                </p>
-
-                <button 
-                  onClick={() => {
-                    setIsCartOpen(false);
-                    navigate("/checkout");
-                  }}
-                  disabled={cart.length === 0}
-                  className={`w-full py-4 text-xs font-bold uppercase tracking-widest rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all duration-300 select-none border-0 ${
-                    cart.length === 0 
-                      ? "bg-zinc-800 text-zinc-500 cursor-not-allowed shadow-none" 
-                      : "bg-[#c29b57] hover:bg-[#b58c49] text-zinc-950 font-bold cursor-pointer hover:shadow-xl active:scale-[0.99]"
-                  }`}
-                >
-                  {language === "fr" ? "PRO CÉDER AU PAIEMENT ➔" : "PROCEED TO CHECKOUT ➔"}
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
     </section>
   );
 }

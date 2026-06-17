@@ -101,7 +101,7 @@ export default function HomeView() {
               {language === "fr" ? (
                 <>BIENVENUE<span className="text-brandOrange"> CHEZ INDIENNE CUISINE</span></>
               ) : (
-                <>WELCOME<span className="text-brandOrange"> TO INDIENNE CUISINE</span></>
+                <>WELCOME<span className="text-[#A03328]"> TO INDIENNE CUISINE</span></>
               )}
             </h1>
             <p className="text-lg md:text-xl text-slate-300 font-medium mb-8 uppercase">
@@ -109,14 +109,14 @@ export default function HomeView() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 z-10">
               <CustomButton 
-                onClick={() => navigateTo('/menu')} 
-                className="bg-brandOrange hover:bg-brandOrange/80 text-white hover:scale-105 transition-all duration-300"
+                onClick={() => navigateTo('/order')} 
+                className="bg-transparent border border-white/30 text-white hover:scale-105 transition-all duration-300 hover:bg-transparent"
               >
                 {language === "fr" ? "Commander" : "Call for order"}
               </CustomButton>
               <CustomButton 
                 onClick={() => navigateTo('/contact')} 
-                className="bg-transparent border border-white/30 hover:bg-white/10 hover:scale-105 transition-all duration-300"
+                className="bg-transparent border border-white/30 text-white hover:scale-105 transition-all duration-300 hover:bg-transparent"
               >
                 {language === "fr" ? "Réserver une table" : "Reserve a table"}
               </CustomButton>

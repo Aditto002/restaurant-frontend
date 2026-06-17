@@ -10,8 +10,8 @@ export default {
       colors: {
         brandPurple: '#6D28D9',
         brandGreen: '#10B981',
-        brandOrange: '#F59E0B',
-        brandRed: '#EF4444',
+        brandOrange: '#d19a2e',
+        brandRed: '#A03328',
       },
     },
   },

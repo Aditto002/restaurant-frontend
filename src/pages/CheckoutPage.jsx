@@ -33,8 +33,8 @@ export default function CheckoutPage({ cart, setCart }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (cart.length === 0) {
-      alert(language === "fr" ? "Votre panier est vide. Veuillez ajouter des articles pour passer commande." : "Your cart is empty. Please add items to checkout.");
+    if (cart.length === 0 && !formData.notes.trim()) {
+      alert(language === "fr" ? "Veuillez ajouter des articles ou laisser une note de commande." : "Please add items to your cart or leave an order note.");
       return;
     }
     // Set order placed state, clear cart after delay
@@ -49,7 +49,11 @@ export default function CheckoutPage({ cart, setCart }) {
   const inputClass = "w-full bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 focus:border-[#c29b57] focus:ring-1 focus:ring-[#c29b57] rounded-lg px-4 py-3 text-white placeholder-zinc-500 outline-none transition-all duration-300 font-sans shadow-sm text-sm";
 
   return (
-    <div className="checkout-page bg-[#111111] min-h-screen flex flex-col font-sans text-zinc-200">
+    <div className="checkout-page bg-[#0b0f19] min-h-screen flex flex-col font-sans text-zinc-200 relative overflow-hidden">
+      {/* Decorative Background Orbs */}
+      <div className="absolute w-[400px] h-[400px] right-[-100px] top-[15%] rounded-full bg-gradient-to-br from-[#c29b57] to-orange-800 blur-[120px] opacity-10 pointer-events-none z-0"></div>
+      <div className="absolute w-[300px] h-[300px] left-[-100px] bottom-[15%] rounded-full bg-gradient-to-br from-[#38bdf8] to-[#818cf8] blur-[120px] opacity-[0.05] pointer-events-none z-0"></div>
+
       {/* 1. Header Banner */}
       <section 
         className="relative w-full h-[220px] md:h-[280px] bg-cover bg-center bg-no-repeat flex items-center justify-center"
@@ -341,12 +345,7 @@ export default function CheckoutPage({ cart, setCart }) {
               {/* Place Order Submit Button */}
               <button
                 type="submit"
-                disabled={cart.length === 0}
-                className={`w-full py-4 text-xs font-bold uppercase tracking-widest rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all duration-300 select-none border-0 mt-4 ${
-                  cart.length === 0 
-                    ? "bg-zinc-800 text-zinc-500 cursor-not-allowed shadow-none" 
-                    : "bg-[#c29b57] hover:bg-[#b58c49] text-zinc-950 font-bold cursor-pointer hover:shadow-xl active:scale-[0.99]"
-                }`}
+                className="w-full py-4 text-xs font-bold uppercase tracking-widest rounded-lg shadow-lg flex items-center justify-center gap-2 transition-all duration-300 select-none border-0 mt-4 bg-[#c29b57] hover:bg-[#b58c49] text-zinc-950 cursor-pointer hover:shadow-xl active:scale-[0.99]"
               >
                 {t("placeOrder")}
               </button>
