@@ -3,15 +3,16 @@ import React, { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import MenuShowcase from "./components/MenuShowcase";
-import ChefsSpecialMarquee from "./pages/ChefsSpecialMarquee";
+import ChefsSpecialMarquee from "./components/ChefsSpecialMarquee";
 import ContactPage from "./pages/ContactPage";
 import DeliciousMenu from "./pages/DeliciousMenu";
 import HomeView from "./pages/HomeView";
-import HeroSection from "./pages/HeroSection";
+import HeroSection from "./components/HeroSection";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderFormPage from "./pages/OrderFormPage";
+import MenuItemDetails from "./pages/MenuItemDetails";
 import Footer from "./components/Footer";
 
 function App() {
@@ -41,6 +42,14 @@ function App() {
           element={
             <>
               <DeliciousMenu cart={cart} setCart={setCart} setIsCartOpen={setIsCartOpen} />
+            </>
+          }
+        />
+        <Route
+          path="/menu/:id"
+          element={
+            <>
+              <MenuItemDetails cart={cart} setCart={setCart} setIsCartOpen={setIsCartOpen} />
             </>
           }
         />

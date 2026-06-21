@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import MenuItem from "../components/MenuItem";
 import { useLanguage } from "../context/LanguageContext.jsx";
-import { translateFood } from "../utils/menuTranslations.js";
+import { translateFood, translateDesc } from "../utils/menuTranslations.js";
 
 // Category definitions with round illustrative food images
 const CATEGORIES = [
@@ -45,7 +45,7 @@ const CATEGORIES = [
 ];
 
 // Luxury menu items data list (27 items correctly categorized)
-const ALL_MENU_ITEMS = [
+export const ALL_MENU_ITEMS = [
   {
     id: 1,
     name: "Tandoori Lamb Chops",
@@ -309,11 +309,6 @@ export default function DeliciousMenu({ cart, setCart, setIsCartOpen }) {
     }
   };
 
-  // Dynamic filtering based on active selection
-  const filteredItems = useMemo(() => {
-    return ALL_MENU_ITEMS.filter((item) => item.category === activeCategory);
-  }, [activeCategory]);
-
   // Add item to shopping cart drawer
   const handleAddToCart = (item) => {
     setCart((prevCart) => {
@@ -329,6 +324,11 @@ export default function DeliciousMenu({ cart, setCart, setIsCartOpen }) {
     });
     setIsCartOpen(true); // Automatically slide open cart drawer when item is clicked
   };
+
+  // Dynamic filtering based on active selection
+  const filteredItems = useMemo(() => {
+    return ALL_MENU_ITEMS.filter((item) => item.category === activeCategory);
+  }, [activeCategory]);
 
   return (
     <section className="bg-[#111111] min-h-screen py-24 px-6 relative overflow-hidden flex flex-col items-center">
@@ -417,6 +417,9 @@ export default function DeliciousMenu({ cart, setCart, setIsCartOpen }) {
                 key={item.id} 
                 item={item} 
                 onAddToCart={handleAddToCart}
+                onOpenDetails={(selected) => {
+                  navigate(`/menu/${selected.id}`);
+                }}
               />
             ))}
           </div>
@@ -452,6 +455,8 @@ export default function DeliciousMenu({ cart, setCart, setIsCartOpen }) {
           )}
         </div>
       </button>
+
+
     </section>
   );
 }

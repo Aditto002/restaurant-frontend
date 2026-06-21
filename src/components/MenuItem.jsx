@@ -2,7 +2,7 @@ import React from "react";
 import { useLanguage } from "../context/LanguageContext.jsx";
 import { translateFood, translateDesc } from "../utils/menuTranslations.js";
 
-export default function MenuItem({ item, onAddToCart }) {
+export default function MenuItem({ item, onAddToCart, onOpenDetails }) {
   const { language } = useLanguage();
 
   const getTranslatedBadge = (badge) => {
@@ -66,6 +66,17 @@ export default function MenuItem({ item, onAddToCart }) {
         <p className="text-gray-400 text-xs leading-relaxed max-w-[85%] font-sans font-light">
           {translateDesc(item.description, language)}
         </p>
+
+        {/* Details button appearing only on hover */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenDetails && onOpenDetails(item);
+          }}
+          className="mt-2.5 self-start text-[10px] tracking-widest text-[#c29b57] uppercase font-bold border border-[#c29b57]/30 hover:border-[#c29b57] hover:bg-[#c29b57]/10 px-3 py-1.5 rounded transition-all duration-300 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto"
+        >
+          {language === 'fr' ? "Détails" : "Details"}
+        </button>
       </div>
     </div>
   );

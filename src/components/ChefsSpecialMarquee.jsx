@@ -1,8 +1,8 @@
 // src/components/ChefsSpecialMarquee.jsx
 import React from "react";
-import VideoCard from "../components/VideoCard";
+import VideoCard from "./VideoCard";
 import { chefVideos } from "../data/videoData";
-import CustomButton from "../components/CustomButton";
+import CustomButton from "./CustomButton";
 import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function ChefsSpecialMarquee() {

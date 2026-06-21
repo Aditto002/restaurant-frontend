@@ -49,6 +49,18 @@ const translations = {
     certifiedQuality: "Certified Quality - Indienne Cuisine",
     processingOrder: "Processing your order...",
     orderCompleted: "Thank you! Your order has been placed successfully.",
+    
+    // Details Modal
+    details: "Details",
+    spiciness: "Spiciness",
+    dietary: "Dietary Info",
+    halalCertified: "100% Halal Certified",
+    addToOrder: "Add to Order",
+    mild: "Mild",
+    medium: "Medium",
+    hot: "Hot",
+    spicinessNone: "None",
+    close: "Close"
   },
   fr: {
     // Navigation
@@ -96,6 +108,18 @@ const translations = {
     certifiedQuality: "Qualité certifiée - Indienne Cuisine",
     processingOrder: "Traitement de votre commande...",
     orderCompleted: "Merci ! Votre commande a été enregistrée avec succès.",
+
+    // Details Modal
+    details: "Détails",
+    spiciness: "Niveau d'Épice",
+    dietary: "Infos Diététiques",
+    halalCertified: "Certifié 100% Halal",
+    addToOrder: "Ajouter à la Commande",
+    mild: "Doux",
+    medium: "Moyen",
+    hot: "Épicé",
+    spicinessNone: "Aucun",
+    close: "Fermer"
   }
 };
 

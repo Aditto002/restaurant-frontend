@@ -1,6 +1,6 @@
 import React from "react";
-import AnimatedMandalaButton from "../components/AnimatedMandalaButton";
-import FloatingInfoCard from "../components/FloatingInfoCard";
+import AnimatedMandalaButton from "./AnimatedMandalaButton";
+import FloatingInfoCard from "./FloatingInfoCard";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext.jsx";
 
